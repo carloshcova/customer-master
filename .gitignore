@@ -1,0 +1,24 @@
+# Local
+.DS_Store
+*.local
+*.log*
+
+# Dist
+node_modules
+dist/
+
+# Module Federation generated types / cache
+@mf-types/
+.mf/
+
+# Profile
+.rspack-profile-*/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Local AI-assistant config (personal, not shared)
+.claude/settings.local.json
+CLAUDE.local.md
