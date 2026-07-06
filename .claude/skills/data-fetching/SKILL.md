@@ -32,7 +32,7 @@ export function useCustomers() {
 ```
 
 Use stable, typed keys: list = `['customers']`, detail = `['customer', id]`. In components,
-handle `isPending` / `isError` (see `CustomerList.tsx`). Never fetch with `useEffect`.
+handle `isPending` / `isError`. Never fetch with `useEffect`.
 
 ## Mutations (writes)
 

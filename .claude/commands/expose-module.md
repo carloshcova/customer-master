@@ -1,6 +1,6 @@
 ---
 description: Expose a new module from this remote via Module Federation
-argument-hint: <ExposedName> <source-path> (e.g. CustomerWidget src/features/customer-list/index.ts)
+argument-hint: <ExposedName> <source-path> (e.g. CustomerWidget src/features/<feature>/index.ts)
 ---
 
 Expose a new module through Module Federation, following

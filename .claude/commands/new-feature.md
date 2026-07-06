@@ -12,7 +12,7 @@ Steps:
 2. Create `src/features/$ARGUMENTS/` with the segments the feature needs — typically
    `api/`, `components/`, `types/` (add `hooks/`, `stores/`, `utils/` only if used).
 3. Add a typed TanStack Query hook in `api/` using `apiClient` from `@/lib/api-client`
-   (stable query key), mirroring `features/customer-list/api/get-customers.ts`.
+   with a stable, typed query key (see `.claude/skills/data-fetching`).
 4. Add a presentational component in `components/` that consumes the hook and handles
    `isPending`/`isError`, using MUI + `sx`.
 5. Create `index.ts` exporting ONLY the public surface (component, hook, key, types).

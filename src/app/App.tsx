@@ -1,6 +1,12 @@
 import { AppProvider } from './provider';
 import { CustomerRoutes } from './routes';
 
+export interface AppProps {
+  /** Standalone dev/preview → apply the global CssBaseline. Host leaves this off
+   * so the reset stays scoped to our subtree. */
+  standalone?: boolean;
+}
+
 /**
  * Root component exposed via Module Federation as `./CustomerApp`.
  *
@@ -8,9 +14,9 @@ import { CustomerRoutes } from './routes';
  * self-contained when mounted by the host, but it does NOT include a Router —
  * the host shell provides the React Router context.
  */
-export function App() {
+export function App({ standalone = false }: AppProps) {
   return (
-    <AppProvider>
+    <AppProvider standalone={standalone}>
       <CustomerRoutes />
     </AppProvider>
   );

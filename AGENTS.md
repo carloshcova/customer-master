@@ -112,5 +112,6 @@ Rules (enforced by `depcruise`, see `.dependency-cruiser.cjs`):
 
 - `.agents/skills/` — vendored best-practices (rsbuild, rstest, vercel-react). Managed by
   `skills-lock.json`; **do not edit**.
-- `.claude/skills/` — project skills (module-federation, mui-theming, data-fetching, forms,
-  project-architecture). Consult the relevant one before non-trivial work in that area.
+- `.claude/skills/` — project skills (module-federation, mui-theming, design-system,
+  data-fetching, forms, project-architecture). Consult the relevant one before non-trivial
+  work in that area.

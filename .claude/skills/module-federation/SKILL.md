@@ -24,7 +24,7 @@ Add to `exposes` in `module-federation.config.ts`, pointing at a real file:
 ```ts
 exposes: {
   './CustomerApp': './src/app/App.tsx',
-  './CustomerWidget': './src/features/customer-list/index.ts',
+  './CustomerWidget': './src/features/<feature>/index.ts',
 }
 ```
 

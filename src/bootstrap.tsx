@@ -14,7 +14,8 @@ if (rootEl) {
   ReactDOM.createRoot(rootEl).render(
     <StrictMode>
       <BrowserRouter>
-        <App />
+        {/* standalone → App applies the global CssBaseline for the dev page. */}
+        <App standalone />
       </BrowserRouter>
     </StrictMode>,
   );

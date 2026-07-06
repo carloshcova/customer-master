@@ -9,6 +9,8 @@ paths:
   theme rather than hardcoding colors/spacing.
 - Style with the `sx` prop or `styled()`. Prefer theme tokens (`sx={{ py: 4 }}`,
   `color: 'primary.main'`) over raw pixel/hex values. Avoid ad-hoc inline `style={{}}`.
-- `CssBaseline` is applied once in `src/app/provider.tsx`; don't add it again.
+- The CSS baseline is applied once in `src/app/provider.tsx` — `ScopedCssBaseline` (so the
+  reset stays inside our subtree and never leaks to the host shell), plus a global
+  `CssBaseline` only when `standalone`. Don't add either again.
 - Keep components accessible: label icon-only controls, use semantic roles, ensure focus
   states. Provide `aria-label` for spinners/progress.

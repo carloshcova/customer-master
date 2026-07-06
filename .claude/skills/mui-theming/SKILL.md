@@ -9,8 +9,11 @@ description: How MUI is set up in mf-customer — the shared theme, ThemeProvide
 
 - The theme lives in `src/config/theme.ts` (`createTheme(...)`): palette, `shape`,
   typography. Extend it here — don't hardcode colors/spacing in components.
-- `src/app/provider.tsx` wraps the app with `ThemeProvider` + `CssBaseline` (applied once).
-- Emotion (`@emotion/react`/`@emotion/styled`) is the styling engine.
+- `src/app/provider.tsx` wraps the app with an isolated Emotion `CacheProvider` +
+  `ThemeProvider`. The CSS reset uses `ScopedCssBaseline` (embed-safe — never leaks to the
+  host), plus a global `CssBaseline` only in `standalone` mode.
+- Emotion (`@emotion/react`/`@emotion/styled`) is the styling engine, with a per-remote
+  isolated cache (`src/app/emotion-cache.ts`, `key: 'mfc'`) for Module Federation safety.
 
 ## Styling components
 

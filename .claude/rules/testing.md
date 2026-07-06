@@ -7,6 +7,11 @@ paths:
 
 # Testing rules
 
+- **Test behavior and composition, not presentation.** Do **not** unit-test pure
+  presentational atoms that are thin MUI wrappers with no own logic (e.g. `Button`) — MUI
+  already covers render/click/disabled and Testing Library can't assert CSS. Test atoms only
+  when they carry logic (masking, validation, controlled state). Focus tests on
+  molecules/organisms/features.
 - Import test APIs from `@rstest/core` (`test`, `describe`, `expect`, `rs`, `beforeEach`…).
   Never commit `.only`.
 - Render components with `renderWithProviders` from `src/testing/test-utils.tsx` so theme,

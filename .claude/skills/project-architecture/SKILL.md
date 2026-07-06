@@ -29,8 +29,12 @@ src/
 
 ## Anatomy of a feature
 
+A feature MAY contain any of these segments — but **create a folder only when it has real
+content**. Do not scaffold empty segments "just in case": an empty folder is noise and
+misrepresents the feature's actual complexity. The structure emerges from need.
+
 ```
-features/customer-list/
+features/<feature>/
   api/         # query/mutation hooks (TanStack Query) + axios calls
   components/  # UI scoped to the feature
   hooks/       # feature-only hooks
@@ -39,6 +43,15 @@ features/customer-list/
   utils/       # feature-only helpers
   index.ts     # PUBLIC API — the only entry point other code may import
 ```
+
+Example: a typical feature starts with only `api/`, `components/`, `types/` and `index.ts`
+because that is all it needs at first. Add `hooks/`, `stores/`, or `utils/` the moment (and
+only when) you have something to put in them.
+
+> **`lib/` is never a feature segment.** It is a *shared-only* layer (`src/lib/`) reserved
+> for preconfigured third-party libraries / infrastructure (axios client, query client).
+> A feature *consumes* `@/lib/...`; it does not own a `lib/`. Feature-local reusable logic
+> belongs in the feature's `hooks/` or `utils/`, not in a `lib/`.
 
 ## The rules (enforced)
 
@@ -50,8 +63,10 @@ features/customer-list/
 
 ## Adding a feature
 
-1. Create `src/features/<name>/` with the segments you need (`api`, `components`, …).
-2. Put the query hooks in `api/`, UI in `components/`, types in `types/`.
+1. Create `src/features/<name>/` with **only the segments that have content now** — never
+   create empty folders. Most features start with just `api/`, `components/`, `types/`.
+2. Put the query hooks in `api/`, UI in `components/`, types in `types/`. Add `hooks/`,
+   `stores/`, `utils/` later, only when needed. Do **not** create a `lib/` inside a feature.
 3. Export the public surface from `index.ts` — nothing else is importable.
 4. Mount its UI from `src/app/routes/` (a `<Route>`), importing via the Public API.
 5. Run `bun run type-check`, `bun run test`, `bun run depcruise`.

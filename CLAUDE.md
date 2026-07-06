@@ -6,8 +6,8 @@ The shared, tool-agnostic guidance lives in `AGENTS.md` (imported above). The no
 apply to Claude Code only.
 
 - **Project skills** live in `.claude/skills/` (`module-federation`, `mui-theming`,
-  `data-fetching`, `forms`, `project-architecture`). They load on demand — invoke or rely
-  on the matching one before non-trivial work in that area.
+  `design-system`, `data-fetching`, `forms`, `project-architecture`). They load on demand —
+  invoke or rely on the matching one before non-trivial work in that area.
 - **Path-scoped rules** live in `.claude/rules/` and load automatically when you touch
   matching files (e.g. MF config, tests, `**/api/**`).
 - **Vendored skills** in `.agents/skills/` (rsbuild / rstest / vercel-react best practices)
