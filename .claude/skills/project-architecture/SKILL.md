@@ -14,16 +14,24 @@ Design). One-directional dependency flow: **`shared → features → app`**, enf
 ```
 src/
   index.tsx        # MF async boundary → import('./bootstrap')
-  bootstrap.tsx    # standalone render: StrictMode + BrowserRouter (dev only)
-  app/             # composition layer
-    App.tsx        # exposed as ./CustomerApp; wraps provider + routes; NO Router
-    provider.tsx   # ThemeProvider + CssBaseline + QueryClientProvider + ErrorBoundary
-    routes/        # relative routes (host mounts them under its base path)
+  bootstrap.tsx    # standalone dev render: <App standalone /> (App owns the Router)
+  app/             # composition + MF exposes
+    App.tsx        # exposed as ./App (single-spa app); mounts its OWN BrowserRouter(basename)
+    Card.tsx       # exposed as ./Card (home-grid parcel, Poppins theme)
+    MenuItem.tsx   # exposed as ./MenuItem (sidebar parcel, Poppins theme)
+    provider.tsx   # CacheProvider + ThemeProvider + CssBaseline + QueryClient + ErrorBoundary
+    emotion-cache.ts # isolated Emotion cache (MF-safe)
+    routes/        # routing layer under the App basename (/customer-master)
+      index.tsx        # the router
+      PrivateRoute.tsx # session guard (bypass in standalone dev)
+      HomePage.tsx     # landing (cross-cutting)
+      customer-master/ · agents/ · security-sensor/  # pages grouped by domain (3 each)
   components/ui/   # shared, domain-agnostic UI
-  config/          # theme.ts, env.ts (PUBLIC_* only)
+  config/          # theme.ts (Lato), shell-theme.ts (Poppins), tokens.ts, env.ts,
+                   #   app.ts (portal constants), i18n/ (es/en/cn)
   features/<name>/ # domain modules (see below)
   hooks/ stores/ types/ utils/   # shared cross-cutting code
-  lib/             # preconfigured libs: api-client (axios), react-query
+  lib/             # preconfigured libs: api-client (axios), react-query, auth/ (session bridge)
   testing/         # renderWithProviders + mocks
 ```
 
@@ -75,5 +83,5 @@ Scaffold with `/new-feature`.
 
 ## Workflow
 
-`bun run dev` (port 3001) · `bun run test` · `bun run check` (Biome) · `bun run type-check`
-· `bun run depcruise` · `bun run build` (emits `remoteEntry.js` + `mf-manifest.json`).
+`bun run dev` (port 3020) · `bun run test` · `bun run check` (Biome) · `bun run type-check`
+· `bun run depcruise` · `bun run build` (emits the classic `remoteEntry.js`).

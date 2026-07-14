@@ -1,4 +1,8 @@
-import { createTheme, type Shadows } from '@mui/material/styles';
+import {
+  createTheme,
+  type Shadows,
+  type ThemeOptions,
+} from '@mui/material/styles';
 import { tokens } from './tokens';
 
 /**
@@ -12,15 +16,16 @@ shadows[2] = tokens.shadow.md;
 shadows[3] = tokens.shadow.l;
 
 /**
- * Shared MUI theme for the customer microfrontend, built from the design tokens
- * in `tokens.ts`. This is where Figma → MUI mapping happens: palette, typography,
- * shape, and component-level overrides (defaultProps / styleOverrides / variants).
+ * Shared MUI theme OPTIONS for the customer MFE, built from the design tokens in
+ * `tokens.ts` (Figma → MUI: palette, typography, shape, component overrides). Most
+ * "looks like Figma" work lands here so it applies globally.
  *
- * Most "looks like Figma" work should land here at the THEME level so it applies
- * globally and consistently — build a wrapper component only when the API must
- * differ. See `.claude/skills/design-system`.
+ * Exported as OPTIONS so `shell-theme.ts` can rebuild the theme with a different
+ * typeface: `createTheme(existingTheme, { typography: { fontFamily } })` does NOT
+ * re-propagate fontFamily to already-computed standard variants (e.g. `body1`), so
+ * shell-theme rebuilds from these options. See `.claude/skills/design-system`.
  */
-export const theme = createTheme({
+export const themeOptions: ThemeOptions = {
   palette: {
     mode: 'light',
     // FBC Blue (base 06), with light/dark pulled from the same scale.
@@ -61,14 +66,14 @@ export const theme = createTheme({
       light: tokens.color.semantic.info.primary,
       contrastText: tokens.color.white,
     },
-    // Text/background/divider from neutrals. Secondary text uses neutral-08 to
-    // keep AA contrast on white (neutral-07 is borderline).
+    // Text from neutrals (secondary uses neutral-08 for AA contrast on white).
+    // Page + surface backgrounds are white per the DS.
     text: {
       primary: tokens.color.neutral['10'],
       secondary: tokens.color.neutral['08'],
     },
     background: {
-      default: tokens.color.neutral['01'],
+      default: tokens.color.white,
       paper: tokens.color.white,
     },
     divider: tokens.color.neutral['03'],
@@ -188,4 +193,6 @@ export const theme = createTheme({
     //   styleOverrides: { root: { borderRadius: tokens.radius.full, textTransform: 'none' } },
     // },
   },
-});
+};
+
+export const theme = createTheme(themeOptions);

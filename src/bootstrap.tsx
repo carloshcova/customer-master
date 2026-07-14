@@ -1,22 +1,18 @@
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 
 /**
- * Standalone bootstrap used when this microfrontend runs on its own (dev /
- * preview). When consumed by the host shell, the host renders the exposed
- * `./CustomerApp` instead and provides the Router — so the `BrowserRouter`
- * below lives here, NOT inside `App`.
+ * Standalone bootstrap for local dev / preview (outside the portal). The App
+ * provides its own Router (basename '/' in standalone), so we do NOT wrap it in
+ * a Router here. When the FBC shell consumes us, it calls the single-spa
+ * lifecycles exported from `./app/App` instead of this file.
  */
 const rootEl = document.getElementById('root');
 if (rootEl) {
-  ReactDOM.createRoot(rootEl).render(
+  createRoot(rootEl).render(
     <StrictMode>
-      <BrowserRouter>
-        {/* standalone → App applies the global CssBaseline for the dev page. */}
-        <App standalone />
-      </BrowserRouter>
+      <App standalone />
     </StrictMode>,
   );
 }

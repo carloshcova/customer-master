@@ -4,36 +4,43 @@ Guidance for AI coding agents working in this repository. This file is the
 **single source of truth** for all agents (Claude Code, Cursor, opencode, etc.).
 `CLAUDE.md` imports it. Keep it accurate and concise.
 
-You are an expert in TypeScript, React 19, Rsbuild/Rspack, Module Federation, and
-modern frontend architecture. Write maintainable, performant, accessible code.
+You are an expert in TypeScript, React 18, single-spa, Rsbuild/Rspack, classic Module
+Federation, and modern frontend architecture. Write maintainable, performant, accessible code.
 
 ## What this project is
 
-`mf-customer` is a **Module Federation v2 remote** (provider). MF name: `mf_customer`.
-It exposes `./CustomerApp` (`src/app/App.tsx`) to a **host shell that owns routing
-via React Router**. The remote therefore:
+`mf-customer` is a **single-spa microfrontend** for the Falabella Business Center
+(FBC) portal, integrated via **classic Module Federation** (rspack container). MF
+name: `mf_customer`. It exposes `./App` (`src/app/App.tsx`) — a single-spa
+application exporting `bootstrap`/`mount`/`unmount`. The FBC shell:
 
-- Shares `react`, `react-dom`, `react-router-dom` (and `@tanstack/react-query`) as
-  **singletons** so host and remote share one instance/context.
-- **Does not mount its own `BrowserRouter`** — it renders relative routes. The
-  standalone dev `BrowserRouter` lives only in `src/bootstrap.tsx`.
+- Registers this remote as a single-spa app and mounts it into its own DOM anchor
+  (it does not `React.lazy` a plain component).
+- Does **not** provide a Router — this MFE mounts its **own**
+  `<BrowserRouter basename="/customer-master">` in `src/app/App.tsx` (basename `/` in
+  standalone dev). The shell owns the chrome (header/sidebar); we render content only.
+- Shares the session/config through the **redux-micro-frontend global store**, not
+  props alone. The bridge lives in `src/lib/auth` (reads the `auth` and
+  `configuration` partner states; seeds from the single-spa `payload`).
 
-To make it also consume other remotes (become a host), add a `remotes` map in
-`module-federation.config.ts`.
+Shared singletons (must match the shell): `react`, `react-dom`, `single-spa`,
+`single-spa-react`, `redux-micro-frontend`. `react-router-dom` is **not** shared —
+each MFE owns its Router. See `.claude/rules/module-federation.md`.
 
 ## Stack
 
-Bun (package manager) · Rsbuild + Rspack · `@module-federation/rsbuild-plugin` (MF v2) ·
-React 19 + React Compiler · TypeScript 6 (strict) · MUI (`@mui/material` + Emotion) ·
-axios + TanStack Query · React Hook Form + Zod (forms/validation) · Biome (lint/format) ·
-Rstest + Testing Library (happy-dom).
+Bun (package manager) · Rsbuild + Rspack · **classic** `rspack.container.ModuleFederationPlugin`
+(matches the FBC shell; added via `tools.rspack`) · single-spa + single-spa-react ·
+redux-micro-frontend (shell global store) · React **18.3** (singleton with the shell) ·
+TypeScript 6 (strict) · MUI (`@mui/material` + Emotion) · axios + TanStack Query ·
+React Hook Form + Zod (forms/validation) · Biome (lint/format) · Rstest + Testing Library (happy-dom).
 
 ## Commands
 
 - `bun install` — install dependencies
-- `bun run dev` — dev server on **http://localhost:3001**
-- `bun run build` — production build (emits `dist/remoteEntry.js` + `dist/mf-manifest.json`)
-- `bun run preview` — preview the production build
+- `bun run dev` (alias `bun run start`) — dev server on **http://localhost:3020**
+- `bun run build` — production build (emits the classic `dist/remoteEntry.js`)
+- `bun run preview` (alias `bun run serve`) — preview the production build
 - `bun run test` / `bun run test:watch` — Rstest
 - `bun run type-check` — `tsc --noEmit`
 - `bun run lint` — Biome lint (no writes)
@@ -49,56 +56,51 @@ Design). **Dependency flow is one-directional: `shared → features → app`.**
 ```
 src/
   index.tsx        # MF async boundary: import('./bootstrap')
-  bootstrap.tsx    # standalone render (StrictMode + BrowserRouter)
-  app/             # composition: App.tsx (exposed), provider.tsx, routes/
+  bootstrap.tsx    # standalone dev render: <App standalone /> (App owns the Router)
+  app/             # composition + MF exposes: App.tsx (./App), Card.tsx (./Card),
+                   #   MenuItem.tsx (./MenuItem), provider.tsx, emotion-cache.ts
+    routes/        # routing layer: index.tsx (router) + PrivateRoute.tsx (guard) +
+                   #   HomePage.tsx + pages by domain (customer-master/ · agents/ · security-sensor/)
   components/ui/   # shared, domain-agnostic UI
-  config/          # theme.ts, env.ts (PUBLIC_* only)
+  config/          # theme.ts (Lato), shell-theme.ts (Poppins, for Card/MenuItem),
+                   #   tokens.ts, env.ts (PUBLIC_*), app.ts (portal constants), i18n/ (es/en/cn)
   features/<name>/ # api/ components/ hooks/ stores/ types/ utils/ + index.ts (Public API)
-  hooks/ lib/ stores/ types/ utils/   # shared layers
-  lib/             # api-client (axios), react-query
+  hooks/ stores/ types/ utils/   # shared layers
+  lib/             # api-client (axios, injects the shell token), react-query,
+                   #   auth/ (redux-micro-frontend session bridge)
   testing/         # renderWithProviders + mocks
 ```
 
-Rules (enforced by `depcruise`, see `.dependency-cruiser.cjs`):
+Rules (enforced by `depcruise`): a feature must not import another feature (import only via its
+`index.ts`); shared layers (`components`, `hooks`, `lib`, `stores`, `types`, `utils`, `config`)
+must not import `features`/`app`; use the `@/` alias; 2–3 nesting levels, folders by domain.
+Details → `.claude/rules/architecture.md`, `project-architecture` skill.
 
-- A feature **must not** import from another feature. Import a feature **only via its
-  `index.ts`** (its Public API); never reach into its internals.
-- Shared layers (`components`, `hooks`, `lib`, `stores`, `types`, `utils`, `config`)
-  must not import from `features` or `app`.
-- Use the `@/` path alias for `src/` (e.g. `import { theme } from '@/config/theme'`).
-- Max 2–3 levels of nesting; name folders by domain, not by technical type.
+## Conventions
 
-### UI
+Each bullet is the actionable rule (so any agent has it inline); the deep guidance — examples,
+token tables, edge cases — lives ONCE in the linked skill/rule. Keep volatile facts (versions,
+ports, exposes) canonical here in AGENTS.md; keep patterns in the skills.
 
-- Use MUI components and the shared `theme` (`src/config/theme.ts`). Style with the `sx`
-  prop or `styled`; avoid ad-hoc inline styles. Wrap with `CssBaseline` (done in provider).
-
-### Data fetching
-
-- Every HTTP call goes through the axios instance in `src/lib/api-client.ts`.
-- Use TanStack Query for server-state (stable query keys, `useQuery`/`useMutation`,
-  invalidate on mutation). **Never** fetch with a manual `useEffect`.
-- Read config from `src/config/env.ts`. Only `PUBLIC_*` vars reach the client — **never
-  put secrets in the bundle**.
-
-### Forms & validation
-
-- Use **React Hook Form + Zod** (`@hookform/resolvers/zod`); never Formik/Yup. A Zod schema
-  is the single source of truth — derive types with `z.infer`. Bind MUI inputs via
-  `<Controller>`. Validate API responses with Zod too (`schema.parse` in the `queryFn`).
-  Zod is local, not an MF shared singleton.
-
-### Testing
-
-- Import test APIs from `@rstest/core` (`test`, `expect`, `rs`, …); never commit `.only`.
-- Use `renderWithProviders` from `src/testing/test-utils.tsx` (wraps theme + query client
-  + MemoryRouter). Query the DOM by role/text (Testing Library), assert with jest-dom.
-
-### Module Federation
-
-- Keep `react`/`react-dom`/`react-router-dom` as `singleton`. Do not enable
-  `output.module` (MF runtime has no ESM output support).
-- Exposed modules are declared in `module-federation.config.ts` under `exposes`.
+- **UI / theming** — MUI + the shared `theme` (Lato); style with `sx`/`styled`, no inline
+  styles; `shell-theme.ts` (Poppins) only for `./Card`/`./MenuItem`.
+  → `mui-theming` & `design-system` skills, `.claude/rules/mui-styling.md`.
+- **Data fetching** — all HTTP via `@/lib/api-client` (injects the shell token); TanStack Query
+  for server-state; never fetch in `useEffect`; only `PUBLIC_*` env, no secrets in the bundle.
+  → `data-fetching` skill, `.claude/rules/data-fetching.md`.
+- **Forms** — React Hook Form + Zod (`@hookform/resolvers/zod`), never Formik/Yup; the Zod
+  schema is the source of truth (`z.infer`); validate API responses too.
+  → `forms` skill, `.claude/rules/forms.md`.
+- **Testing** — Rstest + Testing Library via `renderWithProviders`; mock at the axios boundary;
+  never `.only`; i18n is initialized in `tests/rstest.setup.ts`. → `.claude/rules/testing.md`.
+- **i18n** — i18next (`src/config/i18n`, locales `es`/`en`/`cn`), `useTranslation()`; language
+  auto-syncs to the shell's `configuration.language`; add every key to all three locales
+  (`en.ts` defines the shape); never translate DATA values, only display text. → `i18n` skill.
+- **Module Federation** — classic `rspack.container.ModuleFederationPlugin` (via `tools.rspack`,
+  skipped in tests), NOT MF v2; singletons `react`/`react-dom`/`single-spa`/`single-spa-react`/
+  `redux-micro-frontend` (React stays 18.3); `react-router-dom` NOT shared; exposes `./App`,
+  `./Card`, `./MenuItem` (Card/MenuItem use `shell-theme.ts`).
+  → `module-federation` & `portal-integration` skills, `.claude/rules/module-federation.md`.
 
 ## Reference docs (llms.txt)
 
@@ -112,6 +114,6 @@ Rules (enforced by `depcruise`, see `.dependency-cruiser.cjs`):
 
 - `.agents/skills/` — vendored best-practices (rsbuild, rstest, vercel-react). Managed by
   `skills-lock.json`; **do not edit**.
-- `.claude/skills/` — project skills (module-federation, mui-theming, design-system,
-  data-fetching, forms, project-architecture). Consult the relevant one before non-trivial
-  work in that area.
+- `.claude/skills/` — project skills (portal-integration, i18n, module-federation, mui-theming,
+  design-system, data-fetching, forms, project-architecture). Consult the relevant one before
+  non-trivial work in that area.

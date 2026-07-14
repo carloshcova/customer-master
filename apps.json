@@ -1,0 +1,10 @@
+[
+  {
+    "appName": "mf_customer",
+    "componentImport": "mf_customer/App",
+    "routes": "['/customer-master']",
+    "show": "showWhenPrefix",
+    "appRemoteName": "mf_customer",
+    "remote": "http://localhost:3020/remoteEntry.js"
+  }
+]

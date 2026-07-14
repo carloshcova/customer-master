@@ -94,7 +94,7 @@ MUI palette mapping:
 | `info`       | `#075574`           | pastel           | semantic |
 | text.primary | neutral-10 `#333`   | —                | neutral |
 | text.secondary | neutral-08 `#505050` | —             | neutral (AA-safe) |
-| background.default / paper | neutral-01 / white | —  | neutral |
+| background.default / paper | white / white | —  | DS: white page |
 | divider      | neutral-03 `#dddddd`| —                | neutral |
 
 Usage — prefer roles:
@@ -289,11 +289,11 @@ This remote uses an **isolated Emotion cache** (`src/app/emotion-cache.ts`, `key
 the ThemeProvider. This namespaces our styles and fixes injection-order conflicts when the
 host also uses Emotion/MUI — near-zero cost (`@emotion/cache` ships inside `@emotion/react`).
 
-`@mui/material` / Emotion are NOT MF shared singletons (each MFE ships its own). That's the
-robust default for MFE autonomy. If the host also uses MUI and you want to dedupe the
-bundle, you may additionally add them to `shared` (singleton) — but that couples versions,
-so coordinate with the host team first. A strict host CSP must expose a nonce via
-`<meta property="csp-nonce">` or `window.__CSP_NONCE__`.
+`@mui/material` / Emotion are in `mfOptions.shared` as **non-singletons** (deduped when
+versions match the shell, otherwise each MFE ships its own) — NOT singletons, which keeps
+MFE autonomy. Make them `singleton` only if the host coordinates an exact MUI/Emotion
+version. A strict host CSP must expose a nonce via `<meta property="csp-nonce">` or
+`window.__CSP_NONCE__`.
 
 Reference: MUI theming — https://mui.com/material-ui/customization/theming/ ·
 https://mui.com/material-ui/llms.txt

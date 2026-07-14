@@ -8,7 +8,10 @@ description: How MUI is set up in mf-customer — the shared theme, ThemeProvide
 ## Setup
 
 - The theme lives in `src/config/theme.ts` (`createTheme(...)`): palette, `shape`,
-  typography. Extend it here — don't hardcode colors/spacing in components.
+  typography (**Lato**). Extend it here — don't hardcode colors/spacing in components.
+- `src/config/shell-theme.ts` derives the same theme with **Poppins** for the portal-embedded
+  surfaces (`./Card`, `./MenuItem`) so they blend into the FBC chrome. Use it ONLY there; all
+  regular app/page UI keeps the default `theme` (Lato).
 - `src/app/provider.tsx` wraps the app with an isolated Emotion `CacheProvider` +
   `ThemeProvider`. The CSS reset uses `ScopedCssBaseline` (embed-safe — never leaks to the
   host), plus a global `CssBaseline` only in `standalone` mode.

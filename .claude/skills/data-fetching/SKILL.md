@@ -8,8 +8,9 @@ description: Data-fetching patterns for mf-customer — the shared axios client,
 ## The axios client
 
 All HTTP goes through `src/lib/api-client.ts` (`apiClient`). It sets `baseURL` from
-`src/config/env.ts` and has a response interceptor for error normalization (extend for
-auth tokens/refresh/telemetry). Never import `axios` directly in features/components.
+`src/config/env.ts`, a **request** interceptor that injects the portal session token
+(`Authorization: Bearer` + `X-userId`, read from `@/lib/auth`), and a response interceptor
+for error normalization. Never import `axios` directly in features/components.
 
 ```ts
 import { apiClient } from '@/lib/api-client';

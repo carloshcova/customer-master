@@ -1,8 +1,8 @@
 # Architecture boundaries
 
-This is a Module Federation **remote**. Code is organized feature-first with a strict,
-one-directional dependency flow: **`shared → features → app`**. Enforced by
-`.dependency-cruiser.cjs` (`bun run depcruise`).
+This is a **single-spa microfrontend** (a classic Module Federation **remote**). Code is
+organized feature-first with a strict, one-directional dependency flow:
+**`shared → features → app`**. Enforced by `.dependency-cruiser.cjs` (`bun run depcruise`).
 
 - A feature (`src/features/<name>/`) must **not** import from another feature.
 - Import a feature **only through its `index.ts`** (Public API). Never deep-import a
